@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRMPro — Customer Relationship Management</title>
+  <meta name="description" content="CRMPro — a modern CRM for clients, deals, tasks, support and analytics." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/app.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>" />
+</head>
+<body>
+  <div id="root">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Modal + toasts mount points -->
+  <div class="overlay" id="overlay" style="display:none">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-hd"><h3 id="modal-title"></h3><button class="mc" onclick="closeModal()" aria-label="Close">×</button></div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-ft" id="modal-ft"></div>
+    </div>
+  </div>
+  <div class="toasts" id="toasts"></div>
+
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/ui.js"></script>
+  <script src="/static/js/listkit.js"></script>
+  <script src="/static/js/login.js"></script>
+  <script src="/static/js/layout.js"></script>
+  <script src="/static/js/pages_dashboard.js"></script>
+  <script src="/static/js/pages_clients.js"></script>
+  <script src="/static/js/pages_deals.js"></script>
+  <script src="/static/js/pages_tasks.js"></script>
+  <script src="/static/js/pages_support.js"></script>
+  <script src="/static/js/pages_analytics.js"></script>
+  <script src="/static/js/pages_users.js"></script>
+  <script>
+    // Page registry used by the router in app.js.
+    const Pages = {
+      dashboard: (host, st) => DashboardPage.render(host, st),
+      clients: (host, st) => ClientsPage.render(host, st),
+      deals: (host, st) => DealsPage.render(host, st),
+      tasks: (host, st) => TasksPage.render(host, st),
+      support: (host, st) => SupportPage.render(host, st),
+      analytics: (host, st) => AnalyticsPage.render(host, st),
+      users: (host, st) => UsersPage.render(host, st),
+      profile: (host, st) => ProfilePage.render(host, st),
+    };
+  </script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

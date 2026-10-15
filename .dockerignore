@@ -1,0 +1,23 @@
+# Keep the build context small and free of secrets.
+# NOTE: build context is the repo root (see docker-compose.yml).
+.git
+.venv
+venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+.qodo
+*.db
+*.sqlite
+*.sqlite3
+.env
+.env.*
+!.env.example
+*.log
+_*.txt
+_*.bat
+_*.py
+_*.log
+get-pip.py
+node_modules
+frontend/node_modules

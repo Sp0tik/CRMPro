@@ -1,0 +1,56 @@
+# CRMPro local stack: API + PostgreSQL.
+# No real secrets here — copy .env.example to .env and set strong values.
+# NOTE: the build context is the repo root (not ./backend) because the
+# backend/Dockerfile needs the root requirements.txt and the frontend/ SPA.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-crmpro}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-crmpro_change_me}
+      POSTGRES_DB: ${POSTGRES_DB:-crmpro}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      # Bound to localhost only — not exposed publicly.
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-crmpro}:${POSTGRES_PASSWORD:-crmpro_change_me}@db:5432/${POSTGRES_DB:-crmpro}
+      SECRET_KEY: ${SECRET_KEY:-dev-insecure-secret-change-me}
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-crmpro}:${POSTGRES_PASSWORD:-crmpro_change_me}@db:5432/${POSTGRES_DB:-crmpro}
+      SECRET_KEY: ${SECRET_KEY:-dev-insecure-secret-change-me}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-*}
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

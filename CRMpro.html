@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CRMpro — Customer Relationship Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0F14;--surf:#161A22;--surf2:#1E2330;--surf3:#252C3D;
+  --brd:#2A3045;--brd2:#333D55;
+  --acc:#4F8EF7;--acc2:#3B6FD4;--acc-glow:rgba(79,142,247,.15);
+  --grn:#2DD4BF;--grn-bg:rgba(45,212,191,.1);
+  --red:#F87171;--red-bg:rgba(248,113,113,.1);
+  --amb:#FBBF24;--amb-bg:rgba(251,191,36,.1);
+  --pur:#A78BFA;--pur-bg:rgba(167,139,250,.1);
+  --tx:#E8ECF4;--tx2:#8B95A8;--tx3:#5A6478;
+  --fh:'Syne',sans-serif;--fb:'DM Sans',sans-serif;
+  --r:10px;--r2:6px;
+}
+body{background:var(--bg);color:var(--tx);font-family:var(--fb);font-size:14px;min-height:100vh;display:flex}
+/* SIDEBAR */
+.sidebar{width:224px;background:var(--surf);border-right:1px solid var(--brd);display:flex;flex-direction:column;flex-shrink:0;position:fixed;height:100vh;z-index:10;overflow-y:auto}
+.logo{padding:22px 20px 18px;border-bottom:1px solid var(--brd)}
+.logo h1{font-family:var(--fh);font-size:22px;font-weight:800;letter-spacing:-0.5px}
+.logo h1 span{color:var(--acc)}
+.logo p{font-size:10px;color:var(--tx3);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+.nav{padding:14px 10px;flex:1;display:flex;flex-direction:column;gap:2px}
+.nav-sec{font-size:10px;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;padding:10px 8px 5px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r2);cursor:pointer;color:var(--tx2);font-size:13px;font-weight:500;transition:all .15s;border:none;background:none;width:100%;text-align:left;position:relative}
+.nav-item:hover{background:var(--surf2);color:var(--tx)}
+.nav-item.active{background:var(--acc-glow);color:var(--acc);border:1px solid rgba(79,142,247,.2)}
+.nav-item .ico{width:18px;text-align:center;font-size:15px;flex-shrink:0}
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:700}
+.nb{margin-left:auto;background:var(--red);color:#fff;font-size:10px;padding:1px 6px;border-radius:999px}
+.sb-foot{padding:14px;border-top:1px solid var(--brd);margin-top:auto}
+.user-row{display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--acc-glow);border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--acc);flex-shrink:0}
+.user-row .ui p{font-size:13px;font-weight:600}
+.user-row .ui span{font-size:11px;color:var(--tx3)}
+/* MAIN */
+.main{margin-left:224px;flex:1;display:flex;flex-direction:column;min-height:100vh;min-width:0}
+.topbar{background:var(--surf);border-bottom:1px solid var(--brd);padding:14px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
+.topbar h2{font-family:var(--fh);font-size:18px;font-weight:700}
+.topbar-meta{font-size:12px;color:var(--tx3)}
+.content{padding:22px 26px;flex:1}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--r2);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:var(--fb)}
+.btn-primary{background:var(--acc);color:#fff}.btn-primary:hover{background:var(--acc2)}
+.btn-ghost{background:var(--surf2);color:var(--tx2);border:1px solid var(--brd)}.btn-ghost:hover{color:var(--tx);border-color:var(--brd2)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+/* CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);padding:18px}
+.stat .lbl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px}
+.stat .val{font-family:var(--fh);font-size:26px;font-weight:800;margin-bottom:3px}
+.stat .sub{font-size:11px;color:var(--tx3)}
+.stat .sub.up{color:var(--grn)}.stat .sub.dn{color:var(--red)}
+.s-acc{border-top:3px solid var(--acc)}.s-grn{border-top:3px solid var(--grn)}
+.s-amb{border-top:3px solid var(--amb)}.s-pur{border-top:3px solid var(--pur)}
+/* TABLE CARD */
+.card{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:var(--fh);font-size:14px;font-weight:700}
+.card-body{padding:16px 18px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:9px 13px;font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;font-weight:600;border-bottom:1px solid var(--brd)}
+td{padding:11px 13px;border-bottom:1px solid var(--brd);font-size:13px;color:var(--tx2)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surf2);color:var(--tx)}
+/* BADGES */
+.bg-grn{background:var(--grn-bg);color:var(--grn)}
+.bg-blu{background:var(--acc-glow);color:var(--acc)}
+.bg-amb{background:var(--amb-bg);color:var(--amb)}
+.bg-red{background:var(--red-bg);color:var(--red)}
+.bg-pur{background:var(--pur-bg);color:var(--pur)}
+.bg-gry{background:var(--surf3);color:var(--tx3)}
+/* PIPELINE */
+.pipeline{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.pipe-col{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);padding:12px}
+.pipe-col-hd{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--tx3);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between}
+.pcard{background:var(--surf2);border:1px solid var(--brd);border-radius:var(--r2);padding:11px;margin-bottom:7px}
+.pcard h4{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:3px}
+.pcard .pc{font-size:11px;color:var(--tx3);margin-bottom:6px}
+.pcard .pa{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--acc)}
+.pbar{height:3px;border-radius:2px;background:var(--surf3);margin-top:7px}
+.pbar-f{height:3px;border-radius:2px;background:var(--acc)}
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal{background:var(--surf);border:1px solid var(--brd2);border-radius:var(--r);width:500px;max-height:82vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.modal-hd{padding:18px 22px 14px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.modal-hd h3{font-family:var(--fh);font-size:16px;font-weight:700}
+.mc{background:none;border:none;color:var(--tx3);font-size:22px;cursor:pointer;line-height:1}
+.modal-body{padding:18px 22px}
+.modal-ft{padding:14px 22px;border-top:1px solid var(--brd);display:flex;justify-content:flex-end;gap:8px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:11px;font-weight:600;color:var(--tx3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--surf2);border:1px solid var(--brd);border-radius:var(--r2);padding:8px 11px;color:var(--tx);font-family:var(--fb);font-size:13px;outline:none;transition:border-color .15s}
+.fg input:focus,.fg select:focus{border-color:var(--acc)}
+.fg select option{background:var(--surf2)}
+/* SEARCH */
+.sbar{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.sinput{flex:1;background:var(--surf);border:1px solid var(--brd);border-radius:var(--r2);padding:9px 13px;color:var(--tx);font-size:13px;outline:none;font-family:var(--fb)}
+.sinput:focus{border-color:var(--acc)}
+.sinput::placeholder{color:var(--tx3)}
+/* TASKS */
+.titem{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--brd)}
+.titem:last-child{border-bottom:none}
+.tchk{width:18px;height:18px;border-radius:4px;border:2px solid var(--brd2);cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s}
+.tchk.done{background:var(--grn);border-color:var(--grn);color:#000}
+.ti h4{font-size:13px;font-weight:500;color:var(--tx);margin-bottom:3px}
+.ti h4.done{text-decoration:line-through;color:var(--tx3)}
+.ti .meta{display:flex;gap:8px;font-size:11px;color:var(--tx3);flex-wrap:wrap;align-items:center}
+/* CHART */
+.cbar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.cbar-lbl{width:90px;font-size:11px;color:var(--tx3);text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cbar-tr{flex:1;height:7px;background:var(--surf3);border-radius:4px;overflow:hidden}
+.cbar-fl{height:7px;border-radius:4px}
+.cbar-v{width:60px;font-size:11px;font-weight:600;color:var(--tx2)}
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+/* NOTIF */
+.notif{position:fixed;top:18px;right:18px;background:var(--surf2);border:1px solid var(--grn);border-radius:var(--r2);padding:11px 18px;font-size:13px;color:var(--grn);z-index:200;animation:sli .2s ease;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+@keyframes sli{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+/* SELECT inline */
+.sel-inline{background:var(--surf2);border:1px solid var(--brd);border-radius:var(--r2);padding:4px 8px;color:var(--tx);font-size:12px;font-family:var(--fb);outline:none}
+.sel-inline:focus{border-color:var(--acc)}
+.sel-inline option{background:var(--surf2)}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--surf)}
+::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:2px}
+.arow{display:flex;gap:5px}
+.bold-tx{font-weight:600;color:var(--tx)}
+.acc-tx{font-weight:700;color:var(--acc);font-family:var(--fh)}
+.sm-tx{font-size:11px;color:var(--tx3)}
+.range-wrap label{display:block;font-size:11px;font-weight:600;color:var(--tx3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <h1>CRM<span>pro</span></h1>
+    <p>Customer Relations</p>
+  </div>
+  <nav class="nav">
+    <div class="nav-sec">Навігація</div>
+    <button class="nav-item active" onclick="nav('dashboard',this)"><span class="ico">⬛</span>Дашборд</button>
+    <button class="nav-item" onclick="nav('clients',this)"><span class="ico">👥</span>Клієнти</button>
+    <button class="nav-item" onclick="nav('deals',this)"><span class="ico">💼</span>Угоди</button>
+    <button class="nav-item" id="nav-tasks" onclick="nav('tasks',this)"><span class="ico">✅</span>Задачі<span class="nb" id="tasks-badge" style="display:none"></span></button>
+    <button class="nav-item" id="nav-support" onclick="nav('support',this)"><span class="ico">🎫</span>Підтримка<span class="nb" id="tickets-badge" style="display:none"></span></button>
+    <button class="nav-item" onclick="nav('analytics',this)"><span class="ico">📊</span>Аналітика</button>
+  </nav>
+  <div class="sb-foot">
+    <div class="user-row">
+      <div class="avatar">АД</div>
+      <div class="ui"><p>Адміністратор</p><span>System Admin</span></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <h2 id="page-title">Дашборд</h2>
+    <div class="topbar-meta" id="topbar-meta"></div>
+  </div>
+  <div class="content" id="content"></div>
+</main>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hd"><h3 id="modal-title"></h3><button class="mc" onclick="closeModal()">×</button></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-ft" id="modal-ft"></div>
+  </div>
+</div>
+
+<!-- NOTIF -->
+<div class="notif" id="notif" style="display:none"></div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+let clients = [
+  {id:1,name:"ТОВ Альфа Груп",email:"info@alpha.ua",phone:"+380 44 123-45-67",status:"Активний",segment:"Enterprise",manager:"Олена Коваль",deals:3,created:"2024-01-15"},
+  {id:2,name:"ФОП Мельник Ігор",email:"i.melnyk@gmail.com",phone:"+380 67 234-56-78",status:"Активний",segment:"SMB",manager:"Денис Шевченко",deals:1,created:"2024-02-20"},
+  {id:3,name:"ТОВ БудМастер",email:"bud@master.ua",phone:"+380 50 345-67-89",status:"Потенційний",segment:"SMB",manager:"Олена Коваль",deals:0,created:"2024-03-05"},
+  {id:4,name:"ПрАТ Укртех",email:"info@ukrtech.ua",phone:"+380 63 456-78-90",status:"VIP",segment:"Enterprise",manager:"Марина Лисенко",deals:7,created:"2023-11-10"},
+  {id:5,name:"ТОВ Нова Хвиля",email:"nova@hvylya.ua",phone:"+380 73 567-89-01",status:"Неактивний",segment:"Startup",manager:"Денис Шевченко",deals:2,created:"2024-04-01"},
+];
+let deals = [
+  {id:1,title:"Впровадження CRM",client:"ТОВ Альфа Груп",amount:85000,stage:"Переговори",probability:70,manager:"Олена Коваль",deadline:"2024-08-30",status:"active"},
+  {id:2,title:"Техпідтримка 2024",client:"ПрАТ Укртех",amount:120000,stage:"Закрито (виграно)",probability:100,manager:"Марина Лисенко",deadline:"2024-12-31",status:"won"},
+  {id:3,title:"Розробка модуля",client:"ТОВ БудМастер",amount:45000,stage:"Кваліфікація",probability:30,manager:"Олена Коваль",deadline:"2024-09-15",status:"active"},
+  {id:4,title:"Ліцензії ПЗ",client:"ФОП Мельник Ігор",amount:18000,stage:"Пропозиція надіслана",probability:50,manager:"Денис Шевченко",deadline:"2024-07-20",status:"active"},
+  {id:5,title:"Консалтинг Q3",client:"ПрАТ Укртех",amount:32000,stage:"Закрито (програно)",probability:0,manager:"Марина Лисенко",deadline:"2024-06-01",status:"lost"},
+];
+let tasks = [
+  {id:1,title:"Зателефонувати клієнту Альфа Груп",client:"ТОВ Альфа Груп",priority:"Висока",due:"2024-07-25",done:false,assignee:"Олена Коваль"},
+  {id:2,title:"Підготувати КП для БудМастер",client:"ТОВ БудМастер",priority:"Середня",due:"2024-07-28",done:false,assignee:"Олена Коваль"},
+  {id:3,title:"Надіслати рахунок Укртех",client:"ПрАТ Укртех",priority:"Висока",due:"2024-07-22",done:true,assignee:"Марина Лисенко"},
+  {id:4,title:"Оновити дані по Мельнику",client:"ФОП Мельник Ігор",priority:"Низька",due:"2024-08-01",done:false,assignee:"Денис Шевченко"},
+];
+let tickets = [
+  {id:1,title:"Помилка при вході в систему",client:"ПрАТ Укртех",priority:"Критична",status:"Відкрито",created:"2024-07-20",assignee:"Марина Лисенко"},
+  {id:2,title:"Запит на нову функцію",client:"ТОВ Альфа Груп",priority:"Низька",status:"В роботі",created:"2024-07-18",assignee:"Олена Коваль"},
+  {id:3,title:"Питання щодо рахунку",client:"ФОП Мельник Ігор",priority:"Середня",status:"Закрито",created:"2024-07-10",assignee:"Денис Шевченко"},
+];
+
+const STAGES=["Кваліфікація","Пропозиція надіслана","Переговори","Закрито (виграно)","Закрито (програно)"];
+const MANAGERS=["Олена Коваль","Денис Шевченко","Марина Лисенко"];
+const SEGMENTS=["Enterprise","SMB","Startup"];
+const STATUSES=["Активний","Потенційний","VIP","Неактивний"];
+const PRIORITIES=["Низька","Середня","Висока","Критична"];
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+const fm = n => '₴'+Number(n).toLocaleString('uk-UA');
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function stageBadge(s){
+  if(s.includes('виграно')) return `<span class="badge bg-grn">${esc(s)}</span>`;
+  if(s.includes('програно')) return `<span class="badge bg-red">${esc(s)}</span>`;
+  if(s.includes('Переговори')) return `<span class="badge bg-amb">${esc(s)}</span>`;
+  return `<span class="badge bg-blu">${esc(s)}</span>`;
+}
+function statusBadge(s){
+  const m={Активний:'bg-grn',VIP:'bg-pur',Потенційний:'bg-blu',Неактивний:'bg-gry'};
+  return `<span class="badge ${m[s]||'bg-gry'}">${esc(s)}</span>`;
+}
+function priBadge(p){
+  const m={Висока:'bg-red',Критична:'bg-red',Середня:'bg-amb',Низька:'bg-grn'};
+  return `<span class="badge ${m[p]||'bg-gry'}">${esc(p)}</span>`;
+}
+function tickBadge(s){
+  const m={Відкрито:'bg-red','В роботі':'bg-amb',Закрито:'bg-gry'};
+  return `<span class="badge ${m[s]||'bg-blu'}">${esc(s)}</span>`;
+}
+function segBadge(s){ return `<span class="badge bg-blu">${esc(s)}</span>`; }
+
+function selOpts(arr,val){ return arr.map(o=>`<option${o===val?' selected':''}>${esc(o)}</option>`).join(''); }
+function clientOpts(val=''){
+  return `<option value="">Оберіть клієнта</option>`+clients.map(c=>`<option${c.name===val?' selected':''}>${esc(c.name)}</option>`).join('');
+}
+
+let notifTimer;
+function notify(msg){
+  const el=document.getElementById('notif');
+  el.textContent='✓ '+msg; el.style.display='block';
+  clearTimeout(notifTimer);
+  notifTimer=setTimeout(()=>el.style.display='none',2500);
+}
+
+function updateBadges(){
+  const tb=document.getElementById('tasks-badge');
+  const cnt=tasks.filter(t=>!t.done).length;
+  tb.textContent=cnt; tb.style.display=cnt?'':'none';
+  const sb=document.getElementById('tickets-badge');
+  const sc=tickets.filter(t=>t.status==='Відкрито').length;
+  sb.textContent=sc; sb.style.display=sc?'':'none';
+  const tm=document.getElementById('topbar-meta');
+  if(tm) tm.textContent=`${clients.length} клієнтів · ${deals.filter(d=>d.status==='active').length} активних угод`;
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(title,body,footerHTML){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-body').innerHTML=body;
+  document.getElementById('modal-ft').innerHTML=footerHTML;
+  document.getElementById('overlay').style.display='flex';
+}
+function closeModal(){ document.getElementById('overlay').style.display='none'; }
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+let curPage='dashboard';
+function nav(page,el){
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  curPage=page;
+  const titles={dashboard:'Дашборд',clients:'Клієнти',deals:'Угоди',tasks:'Задачі',support:'Підтримка',analytics:'Аналітика'};
+  document.getElementById('page-title').textContent=titles[page];
+  render();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  updateBadges();
+  const c=document.getElementById('content');
+  if(curPage==='dashboard') c.innerHTML=renderDashboard();
+  else if(curPage==='clients') c.innerHTML=renderClients();
+  else if(curPage==='deals') c.innerHTML=renderDeals();
+  else if(curPage==='tasks') c.innerHTML=renderTasks();
+  else if(curPage==='support') c.innerHTML=renderSupport();
+  else if(curPage==='analytics') c.innerHTML=renderAnalytics();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function renderDashboard(){
+  const won=deals.filter(d=>d.status==='won');
+  const rev=won.reduce((s,d)=>s+d.amount,0);
+  const active=deals.filter(d=>d.status==='active').length;
+  const openT=tickets.filter(t=>t.status!=='Закрито').length;
+  const pendT=tasks.filter(t=>!t.done).length;
+
+  const stages=['Кваліфікація','Пропозиція надіслана','Переговори'];
+  const maxS=Math.max(...stages.map(s=>deals.filter(d=>d.stage===s).reduce((a,b)=>a+b.amount,0)),1);
+  const barsHTML=stages.map(s=>{
+    const sum=deals.filter(d=>d.stage===s).reduce((a,b)=>a+b.amount,0);
+    return `<div class="cbar-row"><div class="cbar-lbl">${s.split(' ')[0]}</div><div class="cbar-tr"><div class="cbar-fl" style="width:${sum/maxS*100}%;background:var(--acc)"></div></div><div class="cbar-v">${fm(sum)}</div></div>`;
+  }).join('')+`<div class="cbar-row"><div class="cbar-lbl">Виграно</div><div class="cbar-tr"><div class="cbar-fl" style="width:${rev/maxS*100}%;background:var(--grn)"></div></div><div class="cbar-v" style="color:var(--grn)">${fm(rev)}</div></div>`;
+
+  const recentDeals=deals.slice(0,4).map(d=>`<tr><td><div class="bold-tx">${esc(d.title)}</div><div class="sm-tx">${esc(d.client)}</div></td><td class="acc-tx">${fm(d.amount)}</td><td>${stageBadge(d.stage)}</td></tr>`).join('');
+  const taskList=tasks.slice(0,4).map(t=>`
+    <div class="titem">
+      <div class="tchk${t.done?' done':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
+      <div class="ti"><h4 class="${t.done?'done':''}">${esc(t.title)}</h4>
+        <div class="meta"><span>📅 ${t.due}</span><span>👤 ${esc(t.assignee)}</span>${priBadge(t.priority)}</div>
+      </div>
+    </div>`).join('');
+  const tickList=tickets.map(t=>`<tr><td><div class="bold-tx">${esc(t.title)}</div><div class="sm-tx">${esc(t.client)}</div></td><td>${priBadge(t.priority)}</td><td>${tickBadge(t.status)}</td></tr>`).join('');
+
+  return `
+  <div class="stats-grid">
+    <div class="stat s-acc"><div class="lbl">Клієнти</div><div class="val">${clients.length}</div><div class="sub up">↑ Активних: ${clients.filter(c=>c.status==='Активний').length}</div></div>
+    <div class="stat s-grn"><div class="lbl">Виторг (закрито)</div><div class="val" style="font-size:20px">${fm(rev)}</div><div class="sub up">↑ Угод виграно: ${won.length}</div></div>
+    <div class="stat s-amb"><div class="lbl">Активні угоди</div><div class="val">${active}</div><div class="sub">В роботі</div></div>
+    <div class="stat s-pur"><div class="lbl">Відкриті заявки</div><div class="val">${openT}</div><div class="sub dn">${pendT} задач не виконано</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-hd"><div class="card-title">Воронка продажів</div></div><div class="card-body">${barsHTML}</div></div>
+    <div class="card"><div class="card-hd"><div class="card-title">Останні угоди</div></div><table><thead><tr><th>Угода</th><th>Сума</th><th>Стадія</th></tr></thead><tbody>${recentDeals}</tbody></table></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-hd"><div class="card-title">Задачі</div></div><div class="card-body">${taskList}</div></div>
+    <div class="card"><div class="card-hd"><div class="card-title">Заявки підтримки</div></div><table><thead><tr><th>Заявка</th><th>Пріоритет</th><th>Статус</th></tr></thead><tbody>${tickList}</tbody></table></div>
+  </div>`;
+}
+
+// ── CLIENTS ───────────────────────────────────────────────────────────────────
+function renderClients(q=''){
+  const list=q?clients.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||c.email.toLowerCase().includes(q.toLowerCase())):clients;
+  const rows=list.map(c=>`<tr>
+    <td><div class="bold-tx">${esc(c.name)}</div><div class="sm-tx">${esc(c.created)}</div></td>
+    <td><div>${esc(c.email)}</div><div class="sm-tx">${esc(c.phone)}</div></td>
+    <td>${esc(c.manager)}</td><td>${segBadge(c.segment)}</td><td>${statusBadge(c.status)}</td>
+    <td class="acc-tx">${c.deals}</td>
+    <td><div class="arow"><button class="btn btn-ghost btn-sm" onclick="viewClient(${c.id})">Деталі</button><button class="btn btn-danger btn-sm" onclick="delClient(${c.id})">✕</button></div></td>
+  </tr>`).join('');
+  return `
+  <div class="sbar">
+    <input class="sinput" placeholder="🔍 Пошук клієнтів..." oninput="searchClients(this.value)" value="${esc(q)}"/>
+    <button class="btn btn-primary" onclick="addClientModal()">+ Новий клієнт</button>
+  </div>
+  <div class="card"><div class="card-hd"><div class="card-title">Клієнтська база (${list.length})</div></div>
+  <table><thead><tr><th>Компанія</th><th>Контакт</th><th>Менеджер</th><th>Сегмент</th><th>Статус</th><th>Угоди</th><th>Дії</th></tr></thead>
+  <tbody>${rows}</tbody></table></div>`;
+}
+function searchClients(q){ document.getElementById('content').innerHTML=renderClients(q); }
+
+function addClientModal(){
+  openModal('Новий клієнт',`
+    <div class="form-row">
+      <div class="fg"><label>Назва *</label><input id="cn" placeholder="ТОВ Приклад"/></div>
+      <div class="fg"><label>Email *</label><input id="ce" placeholder="info@company.ua"/></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Телефон</label><input id="cp" placeholder="+380 XX XXX-XX-XX"/></div>
+      <div class="fg"><label>Сегмент</label><select id="cs">${selOpts(SEGMENTS,'SMB')}</select></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Статус</label><select id="cst">${selOpts(STATUSES,'Активний')}</select></div>
+      <div class="fg"><label>Менеджер</label><select id="cm">${selOpts(MANAGERS,'Олена Коваль')}</select></div>
+    </div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Скасувати</button>
+     <button class="btn btn-primary" onclick="saveClient()">Зберегти</button>`);
+}
+function saveClient(){
+  const n=document.getElementById('cn').value.trim();
+  const e=document.getElementById('ce').value.trim();
+  if(!n||!e){alert('Заповніть обов\'язкові поля');return;}
+  clients.push({id:Date.now(),name:n,email:e,phone:document.getElementById('cp').value,
+    status:document.getElementById('cst').value,segment:document.getElementById('cs').value,
+    manager:document.getElementById('cm').value,deals:0,created:new Date().toISOString().slice(0,10)});
+  closeModal(); notify('Клієнта додано'); render();
+}
+function delClient(id){ if(confirm('Видалити клієнта?')){clients=clients.filter(c=>c.id!==id);notify('Видалено');render();} }
+function viewClient(id){
+  const c=clients.find(x=>x.id===id);
+  openModal(c.name,`
+    <div class="form-row"><div class="fg"><label>Email</label><input readonly value="${esc(c.email)}"/></div><div class="fg"><label>Телефон</label><input readonly value="${esc(c.phone)}"/></div></div>
+    <div class="form-row"><div class="fg"><label>Сегмент</label><input readonly value="${esc(c.segment)}"/></div><div class="fg"><label>Статус</label><input readonly value="${esc(c.status)}"/></div></div>
+    <div class="form-row"><div class="fg"><label>Менеджер</label><input readonly value="${esc(c.manager)}"/></div><div class="fg"><label>Угод</label><input readonly value="${c.deals}"/></div></div>
+    <div class="fg"><label>Дата реєстрації</label><input readonly value="${esc(c.created)}"/></div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Закрити</button>`);
+}
+
+// ── DEALS ─────────────────────────────────────────────────────────────────────
+function renderDeals(){
+  const pipeline=STAGES.slice(0,3).map(stage=>{
+    const dcards=deals.filter(d=>d.stage===stage).map(d=>`
+      <div class="pcard">
+        <h4>${esc(d.title)}</h4><div class="pc">🏢 ${esc(d.client)}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="pa">${fm(d.amount)}</div><span class="sm-tx">${d.probability}%</span>
+        </div>
+        <div class="pbar"><div class="pbar-f" style="width:${d.probability}%"></div></div>
+        <div class="sm-tx" style="margin-top:6px">👤 ${esc(d.manager)} · 📅 ${esc(d.deadline)}</div>
+      </div>`).join('');
+    return `<div class="pipe-col"><div class="pipe-col-hd">${esc(stage)}<span>${deals.filter(d=>d.stage===stage).length}</span></div>${dcards}</div>`;
+  }).join('');
+
+  const rows=deals.map(d=>`<tr>
+    <td class="bold-tx">${esc(d.title)}</td><td>${esc(d.client)}</td>
+    <td class="acc-tx">${fm(d.amount)}</td>
+    <td><select class="sel-inline" onchange="changeDealStage(${d.id},this.value)">${selOpts(STAGES,d.stage)}</select></td>
+    <td>${esc(d.manager)}</td><td class="sm-tx">${esc(d.deadline)}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="delDeal(${d.id})">✕</button></td>
+  </tr>`).join('');
+
+  const won=deals.filter(d=>d.status==='won').length;
+  const lost=deals.filter(d=>d.status==='lost').length;
+  const act=deals.filter(d=>d.status==='active').length;
+  return `
+  <div class="sbar">
+    <div style="display:flex;gap:10px;flex:1">
+      <div class="card" style="padding:8px 14px;margin:0;display:flex;gap:8px;align-items:center"><span style="font-size:13px;color:var(--tx2)">Активні</span><span class="badge bg-blu">${act}</span></div>
+      <div class="card" style="padding:8px 14px;margin:0;display:flex;gap:8px;align-items:center"><span style="font-size:13px;color:var(--tx2)">Виграно</span><span class="badge bg-grn">${won}</span></div>
+      <div class="card" style="padding:8px 14px;margin:0;display:flex;gap:8px;align-items:center"><span style="font-size:13px;color:var(--tx2)">Програно</span><span class="badge bg-red">${lost}</span></div>
+    </div>
+    <button class="btn btn-primary" onclick="addDealModal()">+ Нова угода</button>
+  </div>
+  <div class="pipeline">${pipeline}</div>
+  <div class="card"><div class="card-hd"><div class="card-title">Всі угоди (${deals.length})</div></div>
+  <table><thead><tr><th>Угода</th><th>Клієнт</th><th>Сума</th><th>Стадія</th><th>Менеджер</th><th>Дедлайн</th><th>Дії</th></tr></thead>
+  <tbody>${rows}</tbody></table></div>`;
+}
+function changeDealStage(id,stage){
+  const status=stage.includes('виграно')?'won':stage.includes('програно')?'lost':'active';
+  deals=deals.map(d=>d.id===id?{...d,stage,status}:d);
+  notify('Стадію оновлено'); render();
+}
+function delDeal(id){ if(confirm('Видалити угоду?')){deals=deals.filter(d=>d.id!==id);notify('Видалено');render();} }
+function addDealModal(){
+  openModal('Нова угода',`
+    <div class="form-row">
+      <div class="fg"><label>Назва *</label><input id="dt" placeholder="Назва проєкту"/></div>
+      <div class="fg"><label>Клієнт *</label><select id="dc">${clientOpts()}</select></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Сума (₴) *</label><input id="da" type="number" placeholder="50000"/></div>
+      <div class="fg"><label>Стадія</label><select id="ds">${selOpts(STAGES,'Кваліфікація')}</select></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Менеджер</label><select id="dm">${selOpts(MANAGERS,'Олена Коваль')}</select></div>
+      <div class="fg"><label>Дедлайн</label><input id="dd" type="date"/></div>
+    </div>
+    <div class="range-wrap"><label>Вірогідність: <span id="pv">30</span>%</label>
+      <input type="range" id="dp" min="0" max="100" value="30" oninput="document.getElementById('pv').textContent=this.value"/>
+    </div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Скасувати</button>
+     <button class="btn btn-primary" onclick="saveDeal()">Зберегти</button>`);
+}
+function saveDeal(){
+  const t=document.getElementById('dt').value.trim();
+  const c=document.getElementById('dc').value;
+  const a=document.getElementById('da').value;
+  if(!t||!c||!a){alert('Заповніть обов\'язкові поля');return;}
+  const stage=document.getElementById('ds').value;
+  const status=stage.includes('виграно')?'won':stage.includes('програно')?'lost':'active';
+  deals.push({id:Date.now(),title:t,client:c,amount:Number(a),stage,status,
+    probability:Number(document.getElementById('dp').value),
+    manager:document.getElementById('dm').value,
+    deadline:document.getElementById('dd').value});
+  closeModal(); notify('Угоду створено'); render();
+}
+
+// ── TASKS ─────────────────────────────────────────────────────────────────────
+function renderTasks(){
+  const pending=tasks.filter(t=>!t.done);
+  const done=tasks.filter(t=>t.done);
+  const pHTML=pending.length?pending.map(t=>`
+    <div class="titem">
+      <div class="tchk" onclick="toggleTask(${t.id})"></div>
+      <div class="ti"><h4>${esc(t.title)}</h4>
+        <div class="meta">${t.client?`<span>🏢 ${esc(t.client)}</span>`:''}<span>📅 ${esc(t.due)}</span><span>👤 ${esc(t.assignee)}</span>${priBadge(t.priority)}</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="delTask(${t.id})" style="margin-left:auto">✕</button>
+    </div>`).join(''):`<div style="color:var(--tx3);text-align:center;padding:24px;font-size:13px">Всі задачі виконано 🎉</div>`;
+  const dHTML=done.length?done.map(t=>`
+    <div class="titem" style="opacity:.55">
+      <div class="tchk done" onclick="toggleTask(${t.id})">✓</div>
+      <div class="ti"><h4 class="done">${esc(t.title)}</h4><div class="meta"><span>👤 ${esc(t.assignee)}</span></div></div>
+      <button class="btn btn-danger btn-sm" onclick="delTask(${t.id})" style="margin-left:auto">✕</button>
+    </div>`).join(''):`<div style="color:var(--tx3);text-align:center;padding:24px;font-size:13px">Ще нічого не виконано</div>`;
+
+  return `
+  <div class="sbar">
+    <div style="display:flex;gap:10px;flex:1">
+      <div class="card" style="padding:8px 14px;margin:0"><span style="font-size:13px;color:var(--tx2)">Не виконано: </span><strong style="color:var(--amb)">${pending.length}</strong></div>
+      <div class="card" style="padding:8px 14px;margin:0"><span style="font-size:13px;color:var(--tx2)">Виконано: </span><strong style="color:var(--grn)">${done.length}</strong></div>
+    </div>
+    <button class="btn btn-primary" onclick="addTaskModal()">+ Нова задача</button>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-hd"><div class="card-title">В роботі</div></div><div class="card-body">${pHTML}</div></div>
+    <div class="card"><div class="card-hd"><div class="card-title">Виконано</div></div><div class="card-body">${dHTML}</div></div>
+  </div>`;
+}
+function toggleTask(id){ tasks=tasks.map(t=>t.id===id?{...t,done:!t.done}:t); render(); }
+function delTask(id){ tasks=tasks.filter(t=>t.id!==id); notify('Видалено'); render(); }
+function addTaskModal(){
+  openModal('Нова задача',`
+    <div class="fg"><label>Назва *</label><input id="tt" placeholder="Що потрібно зробити?"/></div>
+    <div class="form-row">
+      <div class="fg"><label>Клієнт</label><select id="tc">${clientOpts()}</select></div>
+      <div class="fg"><label>Пріоритет</label><select id="tp">${selOpts(PRIORITIES,'Середня')}</select></div>
+    </div>
+    <div class="form-row">
+      <div class="fg"><label>Відповідальний</label><select id="ta">${selOpts(MANAGERS,'Олена Коваль')}</select></div>
+      <div class="fg"><label>Дедлайн</label><input id="td" type="date"/></div>
+    </div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Скасувати</button>
+     <button class="btn btn-primary" onclick="saveTask()">Зберегти</button>`);
+}
+function saveTask(){
+  const t=document.getElementById('tt').value.trim();
+  if(!t){alert('Введіть назву');return;}
+  tasks.push({id:Date.now(),title:t,client:document.getElementById('tc').value,
+    priority:document.getElementById('tp').value,due:document.getElementById('td').value,
+    done:false,assignee:document.getElementById('ta').value});
+  closeModal(); notify('Задачу додано'); render();
+}
+
+// ── SUPPORT ───────────────────────────────────────────────────────────────────
+function renderSupport(){
+  const rows=tickets.map(t=>`<tr>
+    <td class="bold-tx">${esc(t.title)}</td><td>${esc(t.client)}</td>
+    <td>${priBadge(t.priority)}</td><td>${esc(t.assignee)}</td>
+    <td><select class="sel-inline" onchange="changeTicketStatus(${t.id},this.value)">
+      ${['Відкрито','В роботі','Закрито'].map(s=>`<option${s===t.status?' selected':''}>${s}</option>`).join('')}
+    </select></td>
+    <td class="sm-tx">${esc(t.created)}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="delTicket(${t.id})">✕</button></td>
+  </tr>`).join('');
+  return `
+  <div class="sbar">
+    <div style="display:flex;gap:10px;flex:1">
+      ${['Відкрито','В роботі','Закрито'].map((s,i)=>{
+        const bc=['bg-red','bg-amb','bg-gry'][i];
+        return `<div class="card" style="padding:8px 14px;margin:0;display:flex;gap:8px;align-items:center"><span style="font-size:13px;color:var(--tx2)">${s}</span><span class="badge ${bc}">${tickets.filter(t=>t.status===s).length}</span></div>`;
+      }).join('')}
+    </div>
+    <button class="btn btn-primary" onclick="addTicketModal()">+ Нова заявка</button>
+  </div>
+  <div class="card"><div class="card-hd"><div class="card-title">Заявки підтримки (${tickets.length})</div></div>
+  <table><thead><tr><th>Заявка</th><th>Клієнт</th><th>Пріоритет</th><th>Відповідальний</th><th>Статус</th><th>Дата</th><th>Дії</th></tr></thead>
+  <tbody>${rows}</tbody></table></div>`;
+}
+function changeTicketStatus(id,status){ tickets=tickets.map(t=>t.id===id?{...t,status}:t); notify('Статус оновлено'); render(); }
+function delTicket(id){ if(confirm('Видалити заявку?')){tickets=tickets.filter(t=>t.id!==id);notify('Видалено');render();} }
+function addTicketModal(){
+  openModal('Нова заявка',`
+    <div class="fg"><label>Тема *</label><input id="tit" placeholder="Опис проблеми"/></div>
+    <div class="form-row">
+      <div class="fg"><label>Клієнт</label><select id="tic">${clientOpts()}</select></div>
+      <div class="fg"><label>Пріоритет</label><select id="tip">${selOpts(PRIORITIES,'Середня')}</select></div>
+    </div>
+    <div class="fg"><label>Відповідальний</label><select id="tia">${selOpts(MANAGERS,'Олена Коваль')}</select></div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Скасувати</button>
+     <button class="btn btn-primary" onclick="saveTicket()">Зберегти</button>`);
+}
+function saveTicket(){
+  const t=document.getElementById('tit').value.trim();
+  if(!t){alert('Введіть тему');return;}
+  tickets.push({id:Date.now(),title:t,client:document.getElementById('tic').value,
+    priority:document.getElementById('tip').value,status:'Відкрито',
+    created:new Date().toISOString().slice(0,10),assignee:document.getElementById('tia').value});
+  closeModal(); notify('Заявку створено'); render();
+}
+
+// ── ANALYTICS ─────────────────────────────────────────────────────────────────
+function renderAnalytics(){
+  const totalAmount=deals.reduce((a,b)=>a+b.amount,0);
+  const wonAmount=deals.filter(d=>d.status==='won').reduce((a,b)=>a+b.amount,0);
+  const conv=deals.length?Math.round(deals.filter(d=>d.status==='won').length/deals.length*100):0;
+  const avgDeal=deals.length?Math.round(totalAmount/deals.length):0;
+  const taskDone=tasks.filter(t=>t.done).length;
+
+  const mgrStats=MANAGERS.map(m=>({
+    name:m,
+    deals:deals.filter(d=>d.manager===m).length,
+    won:deals.filter(d=>d.manager===m&&d.status==='won').length,
+    rev:deals.filter(d=>d.manager===m&&d.status==='won').reduce((a,b)=>a+b.amount,0),
+  }));
+  const maxRev=Math.max(...mgrStats.map(m=>m.rev),1);
+  const mgrHTML=mgrStats.map(m=>`
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:13px;font-weight:600;color:var(--tx)">${esc(m.name)}</span>
+        <span class="sm-tx">${m.won}/${m.deals} угод · ${fm(m.rev)}</span>
+      </div>
+      <div class="cbar-tr"><div class="cbar-fl" style="width:${m.rev/maxRev*100}%;background:var(--acc)"></div></div>
+    </div>`).join('');
+
+  const segHTML=SEGMENTS.map(s=>{
+    const cnt=clients.filter(c=>c.segment===s).length;
+    return `<div class="cbar-row"><div class="cbar-lbl">${s}</div><div class="cbar-tr"><div class="cbar-fl" style="width:${cnt/clients.length*100}%;background:var(--pur)"></div></div><div class="cbar-v">${cnt} кл.</div></div>`;
+  }).join('');
+
+  const stageRows=STAGES.map(s=>{
+    const cnt=deals.filter(d=>d.stage===s).length;
+    const sum=deals.filter(d=>d.stage===s).reduce((a,b)=>a+b.amount,0);
+    const pct=totalAmount?Math.round(sum/totalAmount*100):0;
+    const col=s.includes('виграно')?'var(--grn)':s.includes('програно')?'var(--red)':'var(--acc)';
+    return `<tr><td>${stageBadge(s)}</td><td class="bold-tx">${cnt}</td><td class="acc-tx">${fm(sum)}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="cbar-tr" style="width:90px"><div class="cbar-fl" style="width:${pct}%;background:${col}"></div></div><span class="sm-tx">${pct}%</span></div></td></tr>`;
+  }).join('');
+
+  return `
+  <div class="stats-grid">
+    <div class="stat s-acc"><div class="lbl">Загальна сума</div><div class="val" style="font-size:20px">${fm(totalAmount)}</div><div class="sub">Всі угоди</div></div>
+    <div class="stat s-grn"><div class="lbl">Виграно</div><div class="val" style="font-size:20px">${fm(wonAmount)}</div><div class="sub up">Конверсія: ${conv}%</div></div>
+    <div class="stat s-amb"><div class="lbl">Ср. сума угоди</div><div class="val" style="font-size:20px">${fm(avgDeal)}</div><div class="sub">По ${deals.length} угодах</div></div>
+    <div class="stat s-pur"><div class="lbl">Задач виконано</div><div class="val">${taskDone}/${tasks.length}</div><div class="sub">${tasks.length?Math.round(taskDone/tasks.length*100):0}%</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-hd"><div class="card-title">Ефективність менеджерів</div></div><div class="card-body">${mgrHTML}</div></div>
+    <div class="card"><div class="card-hd"><div class="card-title">Клієнти за сегментами</div></div>
+      <div class="card-body">${segHTML}
+        <div style="margin-top:14px;padding:12px;background:var(--surf2);border-radius:var(--r2)">
+          ${STATUSES.map(s=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--tx2)">${s}</span><strong>${clients.filter(c=>c.status===s).length}</strong></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card"><div class="card-hd"><div class="card-title">Угоди по стадіях</div></div>
+  <table><thead><tr><th>Стадія</th><th>Кількість</th><th>Загальна сума</th><th>Частка</th></tr></thead>
+  <tbody>${stageRows}</tbody></table></div>`;
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
